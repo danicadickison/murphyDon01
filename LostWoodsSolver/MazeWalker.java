@@ -3,6 +3,9 @@
  * maze. Given a 2D array of maze cells and a starting location, it calculates
  * the next "legal" move such that the walker can eventually cover every square
  * in the maze that is reachable from that starting location.
+
+//java LostWoodsSolver 0 0 0 4 < mazes/lmu.maze.txt
+
  */
 public class MazeWalker {
     /**
@@ -71,8 +74,56 @@ public class MazeWalker {
      * impossible to reach.
      */
     public WalkerState areWeThereYet(int currentX, int currentY) {
-        // Implement me!
-        return WalkerState.IMPOSSIBLE_TO_GET_THERE;
+
+        getBeenThere()[currentY][currentX] = true;
+        moveTally ++;
+
+        if (currentX == destinationX && currentY == destinationY) {
+            return WalkerState.THERE_ALREADY;
+        }
+
+        else if (maze.getLocation(currentX, currentY).getRight().isOpen() && !getBeenThere()[currentY][currentX + 1]) {
+            pathIndex++;
+            path[pathIndex] = WalkerState.MOVE_RIGHT;
+            return WalkerState.MOVE_RIGHT;
+        }
+        else if (maze.getLocation(currentX, currentY).getBelow().isOpen() && !getBeenThere()[currentY + 1][currentX]) {
+            pathIndex++;
+            path[pathIndex] = WalkerState.MOVE_DOWN;
+            return WalkerState.MOVE_DOWN;
+        }
+        else if (maze.getLocation(currentX, currentY).getLeft().isOpen() && !getBeenThere()[currentY][currentX - 1]) {
+            pathIndex++;
+            path[pathIndex] = WalkerState.MOVE_LEFT;
+            return WalkerState.MOVE_LEFT;
+        }
+        else if (maze.getLocation(currentX, currentY).getAbove().isOpen() && !getBeenThere()[currentY - 1][currentX]) {
+            pathIndex++;
+            path[pathIndex] = WalkerState.MOVE_UP;
+            return WalkerState.MOVE_UP;
+        } else {
+            if (pathIndex == -1) {
+                return WalkerState.IMPOSSIBLE_TO_GET_THERE;
+            } else {
+            WalkerState backUp = stepBack(path[pathIndex]);
+            pathIndex--;
+            return backUp;
+            }
+        }
+    }
+
+    public WalkerState stepBack(WalkerState currentState) {
+        if (currentState == WalkerState.MOVE_RIGHT) {
+            return WalkerState.MOVE_LEFT;
+        } else if (currentState == WalkerState.MOVE_LEFT) {
+            return WalkerState.MOVE_RIGHT;
+        } else if (currentState == WalkerState.MOVE_UP) {
+            return WalkerState.MOVE_DOWN;
+        } else if (currentState == WalkerState.MOVE_DOWN) {
+            return WalkerState.MOVE_UP;
+        } else {
+            return WalkerState.IMPOSSIBLE_TO_GET_THERE;
+        }
     }
 
     /**
@@ -137,3 +188,4 @@ public class MazeWalker {
      */
     private int moveTally;
 }
+
